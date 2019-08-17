@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fun with Forms in Vue.js</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.0/css/bootstrap.min.css"  crossorigin="anonymous">
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        v-cloak { display: none }
+    </style>
+</head>
+
+<body id="app">
+
+<div class="container" id="appContainer">
+    <div v-show="loading" class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+
+<p>
+<div class="container">
+    <h5>Use form below to update sites Purab is allowed to access!</h5>
+    <div id="errors" v-if="hasError" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+    <div v-if="showSuccess" class="alert alert-success" role="alert">
+        Config updated successfully.
+    </div>
+
+    <div class="form-group">
+        <label for="whitelist">Whitelisted Sites for Purab</label>
+        <textarea v-model="message" class="form-control" id="exampleFormControlTextarea1" rows="10"></textarea>
+        <button class="btn btn-primary" type="button" v-on:click="saveConfig" :disabled="loading">
+            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" v-show="loading"></span>
+            <template v-if="loading">
+                Please wait...
+            </template>
+            <template v-else>
+                Update
+            </template>
+        </button>
+    </div>
+
+
+</div>
+</p>
+
+
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#appContainer',
+        errors: [],
+        data: {
+            loading: true,
+            message: 'Hello Vue!',
+            message2: 'text',
+            hasError: false,
+            errorMessage: '',
+            showSuccess: false
+
+        },
+        methods: {
+            saveConfig: function () {
+                let module = this;
+                module.loading = true;
+                fetch('/api/saveConfig', {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                                // "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            redirect: "follow", // manual, *follow, error
+                            referrer: "no-referrer", // no-referrer, *client
+                            body: JSON.stringify({"data": module.message})
+                        }
+                ).then(function(data) {
+                    module.loading = false;
+                    module.showSuccess = true;
+                    setTimeout(function(){
+                        module.showSuccess = false;
+                    }, 5000);
+                    console.log("saved config");
+                }).catch(function(err) {
+                    module.hasError = true;
+                    module.errorMessage = err;
+                    module.loading = false;
+                });
+
+
+            },
+            getConfig: function() {
+                let module = this;
+                module.loading = true;
+
+                fetch('/api/getConfig', {
+                    method: 'GET'
+                }).then(function(res) {
+                    module.loading = false;
+                    module.hasError = !res.ok;
+                    data = res.json();
+                    return data;
+                }).then(function(data) {
+                    if (!module.hasError) {
+                        module.message = data.data;
+                        module.hasError = false;
+                    } else {
+                        module.hasError = true;
+                        module.errorMessage = data.error;
+                    }
+
+
+                } );
+
+            },
+
+        },
+        created: function () {
+            var self = this;
+            self.getConfig()
+        }
+    });
+
+</script>
+
+</body>
+</html>

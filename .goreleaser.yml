@@ -1,0 +1,12 @@
+git:
+  short_hash: true
+builds:
+- env:
+  - CGO_ENABLED=0
+  binary: docker-utils
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - 386
+  - amd64

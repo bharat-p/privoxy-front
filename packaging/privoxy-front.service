@@ -1,0 +1,11 @@
+[Unit]
+Description=Privoxy Front
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/privoxy-front
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
